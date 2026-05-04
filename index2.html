@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo de Modelo de Churn Predictivo | Industria 4.0/5.0</title>
+    <style>
+        :root {
+            --bg: #f4f7fc;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #5a6c7d;
+            --border: #e0e6ed;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --accent: #1a73e8;
+            --accent-hover: #1557b0;
+            --low: #27ae60;
+            --medium: #f39c12;
+            --high: #e74c3c;
+            --gauge-bg: #e9ecef;
+            --btn-text: #ffffff;
+            --badge-low-bg: #eafaf1;
+            --badge-low-text: #1e7e34;
+            --badge-medium-bg: #fef5e7;
+            --badge-medium-text: #b8730a;
+            --badge-high-bg: #fdedec;
+            --badge-high-text: #b03a2e;
+            --divider: #eef2f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+        }
+
+        /* Panel Izquierdo: Inputs */
+        .input-panel {
+            padding: 2.5rem 2rem;
+            border-right: 1px solid var(--divider);
+        }
+
+        .input-panel h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.01em;
+        }
+
+        .input-panel .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .feature-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-group label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .feature-group label .feature-number {
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            font-weight: 700;
+        }
+
+        .feature-group .hint {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .feature-group input[type="number"],
+        .feature-group select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: #fafbfc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--text);
+        }
+
+        .feature-group input[type="number"]:focus,
+        .feature-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+            background: #fff;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feature-group input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 5px;
+            background: var(--border);
+            outline: none;
+        }
+
+        .feature-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: transform 0.15s;
+        }
+
+        .feature-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .range-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent);
+            min-width: 3rem;
+            text-align: right;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--high);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .btn-evaluar {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--accent);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-evaluar:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-evaluar:active {
+            transform: scale(0.98);
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            color: var(--text-light);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 0.7rem;
+            transition: background 0.2s, border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-reset:hover {
+            background: #f8f9fa;
+            border-color: #cdd4db;
+        }
+
+        /* Panel Derecho: Resultados */
+        .results-panel {
+            padding: 2.5rem 2rem;
+            background: #fafbfd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .results-placeholder {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .results-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .results-active {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 180px;
+            height: 110px;
+            margin-bottom: 1.5rem;
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--gauge-bg);
+            stroke-width: 18;
+            stroke-linecap: round;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke-width: 18;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.8, 0.25, 1.2), stroke 0.8s;
+        }
+
+        .gauge-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            fill: var(--text);
+            text-anchor: middle;
+        }
+
+        .gauge-label {
+            font-size: 0.7rem;
+            fill: var(--text-light);
+            text-anchor: middle;
+            font-weight: 500;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
+            margin-bottom: 1.5rem;
+        }
+
+        .risk-badge.low {
+            background: var(--badge-low-bg);
+            color: var(--badge-low-text);
+        }
+        .risk-badge.medium {
+            background: var(--badge-medium-bg);
+            color: var(--badge-medium-text);
+        }
+        .risk-badge.high {
+            background: var(--badge-high-bg);
+            color: var(--badge-high-text);
+        }
+
+        .justification-box {
+            width: 100%;
+            text-align: left;
+            background: #fff;
+            border: 1px solid var(--divider);
+            border-radius: 14px;
+            padding: 1.2rem 1.4rem;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .justification-box h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .justification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--divider);
+            font-size: 0.8rem;
+            color: var(--text);
+            line-height: 1.45;
+        }
+
+        .justification-item:last-child {
+            border-bottom: none;
+        }
+
+        .justification-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        .dot.high {
+            background: var(--high);
+        }
+        .dot.medium {
+            background: var(--medium);
+        }
+        .dot.low {
+            background: var(--low);
+        }
+
+        .no-risk-msg {
+            color: var(--low);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .footer-note {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 1rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .input-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--divider);
+            }
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ==================== PANEL IZQUIERDO: ENTRADA DE DATOS ==================== -->
+        <div class="input-panel">
+            <h2>🔍 Modelo de Churn Predictivo</h2>
+            <p class="subtitle">Prototipo para la evaluación del riesgo de abandono de clientes en una operadora de telecomunicaciones.</p>
+
+            <!-- Variable 1: Frecuencia de quejas -->
+            <div class="feature-group">
+                <label>
+                    <span><span class="feature-number">1</span> Frecuencia de llamadas al centro de atención por quejas</span>
+                    <span class="hint">últimos 3 meses</span>
+                </label>
+                <input type="number" id="quejas" value="2" min="0" max="20" step="1" placeholder="Ej: 2">
+            </div>
+
+            <!-- Variable 2: Ratio de uso sobre el cupo contratado -->
+            <div class="feature-group">
+                <label>
+                    <span><span class="feature-number">2</span> Ratio de uso sobre el cupo contratado</span>
+                    <span class="hint">% de datos, minutos o SMS</span>
+                </label>
+                <div class="range-container">
+                    <input type="range" id="uso" value="45" min="5" max="150" step="1" oninput="document.getElementById('usoVal').textContent = this.value + '%'">
+                    <span class="range-value" id="usoVal">45%</span>
+                </div>
+            </div>
+
+            <!-- Variable 3: Antigüedad del cliente -->
+            <div class="feature-group">
+                <label>
+                    <span><span class="feature-number">3</span> Antigüedad del cliente</span>
+                    <span class="hint">meses desde la activación</span>
+                </label>
+                <input type="number" id="antiguedad" value="8" min="0" max="120" step="1" placeholder="Ej: 8">
+            </div>
+
+            <!-- Variable 4: Volatilidad o caída brusca en la facturación -->
+            <div class="feature-group">
+                <label>
+                    <span><span class="feature-number">4</span> Caída en la facturación mensual</span>
+                    <span class="hint">% de reducción respecto al mes anterior</span>
+                </label>
+                <div class="range-container">
+                    <input type="range" id="volatilidad" value="10" min="0" max="80" step="1" oninput="document.getElementById('volVal').textContent = this.value + '%'">
+                    <span class="range-value" id="volVal">10%</span>
+                </div>
+            </div>
+
+            <!-- Variable 5: Señal de contacto con un competidor -->
+            <div class="feature-group">
+                <label>
+                    <span><span class="feature-number">5</span> Señal de interacción con un competidor</span>
+                    <span class="hint">flag de portabilidad o intento de contacto</span>
+                </label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="contactoComp">
+                    <label for="contactoComp">El cliente ha consultado condiciones de portabilidad o ha interactuado con un competidor.</label>
+                </div>
+            </div>
+
+            <button class="btn-evaluar" id="evaluarBtn">▶ Calcular Riesgo de Churn</button>
+            <button class="btn-reset" id="resetBtn">↺ Restablecer valores de ejemplo</button>
+        </div>
+
+        <!-- ==================== PANEL DERECHO: RESULTADOS ==================== -->
+        <div class="results-panel" id="resultsPanel">
+            <!-- Estado inicial -->
+            <div id="placeholderBlock" class="results-placeholder">
+                <div class="icon">📊</div>
+                <p>Ingrese los valores de las cinco variables<br>y presione <strong>"Calcular Riesgo de Churn"</strong><br>para obtener el diagnóstico.</p>
+            </div>
+
+            <!-- Resultados (oculto hasta la primera evaluación) -->
+            <div id="resultsActive" class="results-active">
+                <div class="gauge-container">
+                    <svg viewBox="0 0 200 120" width="200" height="120">
+                        <path class="gauge-bg" d="M 30 100 A 70 70 0 0 1 170 100" />
+                        <path id="gaugeFill" class="gauge-fill" d="M 30 100 A 70 70 0 0 1 170 100"
+                        stroke="#27ae60" stroke-dasharray="220" stroke-dashoffset="220" />
+                        <text id="gaugeScore" class="gauge-text" x="100" y="82">—</text>
+                        <text class="gauge-label" x="100" y="102">RIESGO</text>
+                    </svg>
+                </div>
+                <div id="riskBadge" class="risk-badge low">BAJO</div>
+                <div class="justification-box" id="justificationBox">
+                    <h4>📋 Factores Determinantes</h4>
+                    <div id="justificationList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ──────────────────────────────────────────────
+        // MOTOR DE LÓGICA PREDICTIVA (SCORING PONDERADO)
+        // ──────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            const evaluarBtn = document.getElementById('evaluarBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const placeholderBlock = document.getElementById('placeholderBlock');
+            const resultsActive = document.getElementById('resultsActive');
+            const gaugeFill = document.getElementById('gaugeFill');
+            const gaugeScore = document.getElementById('gaugeScore');
+            const riskBadge = document.getElementById('riskBadge');
+            const justificationList = document.getElementById('justificationList');
+
+            // Función principal de evaluación
+            function evaluarRiesgo() {
+                // 1. CAPTURAR LAS 5 FEATURES
+                const quejas = parseInt(document.getElementById('quejas').value) || 0;
+                const uso = parseInt(document.getElementById('uso').value) || 50;
+                const antiguedad = parseInt(document.getElementById('antiguedad').value) || 12;
+                const volatilidad = parseInt(document.getElementById('volatilidad').value) || 0;
+                const contactoComp = document.getElementById('contactoComp').checked;
+
+                // 2. INICIALIZAR SCORE Y EXPLICACIONES
+                let score = 0;
+                let explicaciones = [];
+                const maxScorePosible = 130; // 30 + 25 + 20 + 15 + 40
+
+                // ─── VARIABLE 1: Frecuencia de quejas (Peso máx: 30 pts) ───
+                if (quejas >= 5) {
+                    score += 30;
+                    explicaciones.push({
+                        texto: 'Más de 4 quejas en el último trimestre. El cliente evidencia una insatisfacción alta. Se recomienda una llamada de retención prioritaria con un agente especializado.',
+                        nivel: 'high'
+                    });
+                } else if (quejas >= 2) {
+                    score += 15;
+                    explicaciones.push({
+                        texto: 'Entre 2 y 4 quejas en tres meses. Nivel de fricción moderado. Es aconsejable una encuesta de satisfacción proactiva para identificar la causa raíz.',
+                        nivel: 'medium'
+                    });
+                } else {
+                    explicaciones.push({
+                        texto: 'Baja frecuencia de quejas. El cliente no manifiesta insatisfacción activa a través de este canal.',
+                        nivel: 'low'
+                    });
+                }
+
+                // ─── VARIABLE 2: Ratio de uso del plan (Peso máx: 25 pts) ───
+                if (uso < 20) {
+                    score += 20;
+                    explicaciones.push({
+                        texto: 'Ratio de uso inferior al 20 %. El cliente percibe que paga por un servicio que no aprovecha. Se sugiere ofrecer un plan de menor costo ajustado a su consumo real.',
+                        nivel: 'high'
+                    });
+                } else if (uso > 100) {
+                    score += 25;
+                    explicaciones.push({
+                        texto: 'Ratio de uso superior al 100 %. Los cobros adicionales recurrentes generan una experiencia negativa. Se recomienda un upgrade de plan preventivo antes de que el cliente busque alternativas.',
+                        nivel: 'high'
+                    });
+                } else if (uso >= 20 && uso <= 100) {
+                    explicaciones.push({
+                        texto: 'El cliente utiliza su plan dentro del rango esperado. La relación precio-valor parece equilibrada desde esta variable.',
+                        nivel: 'low'
+                    });
+                }
+
+                // ─── VARIABLE 3: Antigüedad (Peso máx: 15 pts) ───
+                if (antiguedad < 6) {
+                    score += 15;
+                    explicaciones.push({
+                        texto: 'Cliente con menos de 6 meses de antigüedad. Se encuentra en la fase de mayor riesgo de abandono según la curva de retención histórica. Se debe reforzar la comunicación de onboarding y los beneficios del servicio.',
+                        nivel: 'medium'
+                    });
+                } else {
+                    explicaciones.push({
+                        texto: 'Antigüedad superior a 6 meses. El cliente ha superado la etapa crítica inicial y presenta una relación más estable con la operadora.',
+                        nivel: 'low'
+                    });
+                }
+
+                // ─── VARIABLE 4: Caída en la facturación (Peso máx: 20 pts) ───
+                if (volatilidad > 30) {
+                    score += 20;
+                    explicaciones.push({
+                        texto: 'Reducción de facturación superior al 30 %. Indicio de migración progresiva de actividad a otro operador. Se debe investigar qué servicios de alto valor ha dejado de consumir.',
+                        nivel: 'high'
+                    });
+                } else if (volatilidad > 10) {
+                    score += 10;
+                    explicaciones.push({
+                        texto: 'Ligera reducción en la facturación. Puede ser estacional, pero conviene monitorear la tendencia en los próximos meses.',
+                        nivel: 'medium'
+                    });
+                } else {
+                    explicaciones.push({
+                        texto: 'Facturación estable o en crecimiento. No se detectan señales de fuga de gasto.',
+                        nivel: 'low'
+                    });
+                }
+
+                // ─── VARIABLE 5: Contacto con competidor (Peso máx: 40 pts) ───
+                if (contactoComp) {
+                    score += 40;
+                    explicaciones.push({
+                        texto: 'CRÍTICO: El cliente ha mostrado señales de interacción con un competidor. El riesgo de portabilidad es inminente. Se requiere intervención inmediata de un agente senior con capacidad de realizar ofertas de retención de alto valor.',
+                        nivel: 'high'
+                    });
+                } else {
+                    explicaciones.push({
+                        texto: 'No se detectan señales de interacción con la competencia en los registros disponibles.',
+                        nivel: 'low'
+                    });
+                }
+
+                // 3. NORMALIZAR SCORE A ESCALA 0-100
+                let scoreNormalizado = Math.round((score / maxScorePosible) * 100);
+                if (scoreNormalizado > 100) scoreNormalizado = 100;
+
+                // 4. DETERMINAR NIVEL DE RIESGO
+                let nivelRiesgo, claseBadge, colorGauge;
+                if (scoreNormalizado >= 60) {
+                    nivelRiesgo = 'ALTO';
+                    claseBadge = 'high';
+                    colorGauge = '#e74c3c';
+                } else if (scoreNormalizado >= 30) {
+                    nivelRiesgo = 'MODERADO';
+                    claseBadge = 'medium';
+                    colorGauge = '#f39c12';
+                } else {
+                    nivelRiesgo = 'BAJO';
+                    claseBadge = 'low';
+                    colorGauge = '#27ae60';
+                }
+
+                // 5. ACTUALIZAR LA INTERFAZ
+                actualizarInterfaz(scoreNormalizado, nivelRiesgo, claseBadge, colorGauge, explicaciones);
+            }
+
+            function actualizarInterfaz(score, nivel, claseBadge, colorGauge, explicaciones) {
+                // Mostrar sección de resultados
+                placeholderBlock.style.display = 'none';
+                resultsActive.style.display = 'flex';
+
+                // Actualizar velocímetro
+                const circunferencia = 220; // Stroke-dasharray del arco
+                const offset = circunferencia - (circunferencia * (score / 100));
+                gaugeFill.setAttribute('stroke-dashoffset', offset);
+                gaugeFill.setAttribute('stroke', colorGauge);
+                gaugeScore.textContent = score;
+
+                // Actualizar badge
+                riskBadge.textContent = nivel;
+                riskBadge.className = `risk-badge ${claseBadge}`;
+
+                // Construir lista de justificaciones
+                justificationList.innerHTML = '';
+                explicaciones.forEach(exp => {
+                    const item = document.createElement('div');
+                    item.className = 'justification-item';
+                    item.innerHTML = `<span class="dot ${exp.nivel}"></span><span>${exp.texto}</span>`;
+                    justificationList.appendChild(item);
+                });
+            }
+
+            function resetValores() {
+                document.getElementById('quejas').value = 2;
+                document.getElementById('uso').value = 45;
+                document.getElementById('usoVal').textContent = '45%';
+                document.getElementById('antiguedad').value = 8;
+                document.getElementById('volatilidad').value = 10;
+                document.getElementById('volVal').textContent = '10%';
+                document.getElementById('contactoComp').checked = false;
+
+                // Restaurar vista inicial
+                placeholderBlock.style.display = 'block';
+                resultsActive.style.display = 'none';
+            }
+
+            // Event listeners
+            evaluarBtn.addEventListener('click', evaluarRiesgo);
+            resetBtn.addEventListener('click', resetValores);
+        });
+    </script>
+</body>
+</html>
